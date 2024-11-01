@@ -1,8 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+import { WebsocketAdapter } from './chat/websocket-adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  const configService=app.get(ConfigService);
+  app.enableCors({
+    origin:configService.get('BASE_URL'),
+  });
+  app.useWebSocketAdapter(
+    new WebsocketAdapter(app,{
+      origin:configService.get('BASE_URL'),
+    }),
+  );
+  await app.listen(3000);
 }
 bootstrap();
