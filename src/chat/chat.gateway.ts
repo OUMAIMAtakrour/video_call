@@ -23,7 +23,8 @@ export class ChatGateway {
   }
   Socket.join(roomName);
  }
- @SubscribeMessage('send connectio offer')
+
+ @SubscribeMessage('send connection offer')
  async sendConnectionOffer(
   @MessageBody()
   {
@@ -39,5 +40,40 @@ export class ChatGateway {
     offer,
     roomName,
   });
+ }
+
+
+ @SubscribeMessage('answer')
+ async answer(
+  @MessageBody(){
+    answer,
+    roomName,
+  }:{
+    answer:RTCLocalSessionDescriptionInit;
+    roomName:string;
+  },
+  @ConnectedSocket() socket: Socket,
+ ){
+  this.server.in(roomName).except(socket.id).emit('answer',{
+    answer,
+    roomName,
+  });
+ }
+
+ @SubscribeMessage('send candidate')
+ async sendCandidate(
+  @MessageBody(){
+    candidate,
+    roomName,
+  }:{
+    candidate:unknown;
+    roomName:string;
+  },
+  @ConnectedSocket()socket:Socket,
+ ){
+  this.server.in(roomName).except(socket.id).emit('send candidate',{
+    candidate,
+    roomName,
+  })
  }
 }
